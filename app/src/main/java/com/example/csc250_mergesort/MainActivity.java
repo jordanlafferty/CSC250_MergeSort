@@ -64,14 +64,46 @@ public class MainActivity extends AppCompatActivity {
         return s;
     }
 
-    public String merge(ArrayList<String> theList, int begin, int end)
+    private void merge(ArrayList<String> theList, int begin1, int end1, int begin2, int end2)
     {
-        String s = "";
-        for (int i= begin; i<=end; i++)
+        //creates a temp array big enough to hold all the value from begin1 to end2
+        int[] temp = new int[end2 - begin1 + 1];
+        int pos1 = begin1;
+        int pos2 = begin2;
+        for(int i = 0; i < temp.length; i++)
         {
-            s = s + theList.get(i)+ " ";
+            if(pos1 <= end1 && pos2 <= end2)
+            {
+                if(Integer.parseInt(theList.get(pos1)) < Integer.parseInt(theList.get(pos2)))
+                {
+                    temp[i] = Integer.parseInt(theList.get(pos1));
+                    pos1++;
+                }
+                else
+                {
+                    temp[i] = Integer.parseInt(theList.get(pos2));
+                    pos2++;
+                }
+            }
+            else if(pos1 <= end1)
+            {
+                temp[i] = Integer.parseInt(theList.get(pos1));
+                pos1++;
+            }
+            else
+            {
+                temp[i] = Integer.parseInt(theList.get(pos2));
+                pos2++;
+            }
         }
-        return s;
+        //temp now holds our values in order, we need to copy them back into the list
+        //between buckets begin1 and end2
+        int theListPos = begin1;
+        for(int i = 0; i < temp.length; i++)
+        {
+            theList.set(theListPos, "" + temp[i]);
+            theListPos++;
+        }
     }
 
     private void mergeSort(ArrayList<String> theList, int begin, int end)
@@ -90,13 +122,26 @@ public class MainActivity extends AppCompatActivity {
             //I don't have a 1-list, so I need to divide my list in half & call mergesort
             //call mergeSort on left and right side
 
+            int begin1 =begin;
+            int end1 = (begin+end)/2;
+            int begin2 = end1 +1;
+            int end2 = end;
+            this.mergeSort(theList, begin1, end1);
+            this.mergeSort(theList, begin2, end2);
+
+            //when we get here we know that the first and second half are both sorted
+            this.merge(theList, begin1, end1, begin2, end2);
+
+            // my solution to HW 17
+            /*
             if (end>=1)
             {
+
                 int middle = (begin+end)/2;
                 mergeSort(theList, begin,middle);
                 mergeSort(theList, middle+1, end);
-                merge(theList, begin,end);
-            }
+                buildStringFromPartOfList(theList, begin,end);
+            }*/
 
 
         }
@@ -108,6 +153,8 @@ public class MainActivity extends AppCompatActivity {
         // letting the adapter know the data set has changed
         this.mergeSort(this.theListOfNumbersAsStrings,
                 0, this.theListOfNumbersAsStrings.size()-1);
+        //our ArrayList should now be sorted
+        this.theListOfNumbersAdapter.notifyDataSetChanged();
 
     }
 
